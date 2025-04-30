@@ -7,7 +7,11 @@ const app = express();
 app.use(bodyParser.json());
 
 const client = new Client({
-    authStrategy: new LocalAuth()
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    }
 });
 
 client.on('qr', (qr) => {
@@ -19,9 +23,17 @@ client.on('ready', () => {
     console.log('Cliente está listo para enviar mensajes.');
 });
 
+client.on('auth_failure', (msg) => {
+    console.error('Error de autenticación:', msg);
+});
+
+client.on('error', (err) => {
+    console.error('Error general del cliente:', err);
+});
+
 // Ruta para que PHP pueda enviar mensajes
 app.post('/send-message', async (req, res) => {
-    const number = req.body.number; // Ej: "573001234567"
+    const number = req.body.number;
     const message = req.body.message;
 
     const chatId = number + "@c.us";
@@ -36,5 +48,5 @@ app.post('/send-message', async (req, res) => {
 client.initialize();
 
 app.listen(3000, () => {
-    console.log('Servidor escuchando en http://localhost:3000');
+    console.log('Servidor escuchando...');
 });
