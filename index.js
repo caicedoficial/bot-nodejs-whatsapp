@@ -1,10 +1,13 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
+const QRCode = require('qrcode');
 const express = require('express');
 const bodyParser = require('body-parser');
 
 const app = express();
 app.use(bodyParser.json());
+
+let latestQR = null; // Almacena el último QR generado
 
 const client = new Client({
     authStrategy: new LocalAuth(),
@@ -15,8 +18,8 @@ const client = new Client({
 });
 
 client.on('qr', (qr) => {
-    console.log('Escanea este QR con WhatsApp:');
-    qrcode.generate(qr, { small: true });
+    console.log('Nuevo código QR generado');
+    latestQR = qr;
 });
 
 client.on('ready', () => {
@@ -42,6 +45,17 @@ app.post('/send-message', async (req, res) => {
         res.send({ status: "success", message: "Mensaje enviado correctamente." });
     } catch (err) {
         res.status(500).send({ status: "error", error: err.toString() });
+    }
+});
+
+// Ruta para ver el QR como imagen en el navegador
+app.get('/qr', async (req, res) => {
+    if (!latestQR) return res.send('QR no generado todavía.');
+    try {
+        const qrImage = await QRCode.toDataURL(latestQR);
+        res.send(`<img src="${qrImage}" alt="QR Code" />`);
+    } catch (error) {
+        res.status(500).send('Error generando el QR.');
     }
 });
 
