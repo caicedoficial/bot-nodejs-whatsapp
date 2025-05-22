@@ -11,8 +11,7 @@ const client = new Client({
 });
 
 client.on('qr', (qr) => {
-    console.log('Escanea este QR con WhatsApp:');
-    qrcode.generate(qr, { small: true });
+  qrcode.generate(qr, { small: true });
 });
 
 client.on('ready', () => {
@@ -33,3 +32,7 @@ app.post('/send-message', async (req, res) => {
 });
 
 client.initialize();
+
+app.listen(3000, '0.0.0.0', () => {
+  console.log("Servidor escuchando...");
+});
