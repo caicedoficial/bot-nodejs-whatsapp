@@ -19,15 +19,22 @@ client.on('ready', () => {
 });
 
 app.post('/send-message', async (req, res) => {
-    const number = req.body.number;
+    const groupName = req.body.groupName;
     const message = req.body.message;
 
-    const chatId = number + "@c.us";
     try {
-        await client.sendMessage(chatId, message);
-        res.send({ status: "success", message: "Mensaje enviado correctamente." });
+        const chats = await client.getChats();
+        const group = chats.find(chat => chat.isGroup && chat.name === groupName);
+
+        if (!group) {
+            return res.status(404).send({ status: "error", error: "Grupo no encontrado." });
+        }
+
+        await client.sendMessage(group.id._serialized, message);
+        res.send("Mensaje enviado correctamente.");
+
     } catch (err) {
-        res.status(500).send({ status: "error", error: err.toString() });
+        res.status(500).send("Error al enviar el mensaje -> Notificar al personal encargado." );
     }
 });
 
