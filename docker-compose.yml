@@ -1,0 +1,20 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whatsapp_bot
+    ports:
+      - "3001:3000"
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    restart: unless-stopped
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    container_name: ngrok
+    volumes:
+      - ./ngrok.yml:/etc/ngrok.yml

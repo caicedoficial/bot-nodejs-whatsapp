@@ -1,0 +1,8 @@
+version: 3
+agent:
+  authtoken: your_authtoken
+endpoints:
+  - name: whatsapp
+    url: your_url
+    upstream:
+      url: bot:3000
